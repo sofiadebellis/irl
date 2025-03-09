@@ -7,6 +7,8 @@ import { VStack } from "@/components/ui/vstack";
 import { Heading } from "@/components/ui/heading";
 import { Fab, FabIcon } from "@/components/ui/fab";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { GOOGLE_MAPS_API_KEY } from "@/helpers";
 
 import {
   ArrowLeftIcon,
@@ -37,7 +39,7 @@ import { priceLabelMap, priceTextMap } from "@/helpers";
 export default function EditEvent() {
   const [name, setName] = useState("");
   const [coverPhoto, setCoverPhoto] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState({ description: "", id: "" });
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<EventCategory>();
   const [price, setPrice] = useState<EventPrice>();
@@ -173,8 +175,11 @@ export default function EditEvent() {
   }
 
   return (
-    <Box style={{ backgroundColor: "#FFFFFF" }} className="h-full">
-      <ScrollView className="flex-1 relative">
+    <Box style={{ backgroundColor: '#FFFFFF' }} className='h-full'>
+      <ScrollView
+        className='flex-1 relative'
+        keyboardShouldPersistTaps='always'
+      >
         <Fab
           placement="top left"
           size="lg"
@@ -192,6 +197,7 @@ export default function EditEvent() {
             as={ArrowLeftIcon}
             onPress={() => router.back()}
             className="text-black"
+            size="xl"
           />
         </Fab>
 
@@ -202,17 +208,17 @@ export default function EditEvent() {
                 Edit Event
               </Heading>
               <VStack space="sm" className="mt-4">
-                <Text size="2xl">Event Name</Text>
+                <Text size="xl">Event Name</Text>
                 <Input size="xl">
                   <InputField
-                    placeholder="Enter event name"
+                    placeholder="Coastal Cliffs Adventure Hike"
                     value={name}
                     onChangeText={setName}
                   />
                 </Input>
               </VStack>
               <VStack space="sm" className="mt-4">
-                <Text size="2xl">Cover photo</Text>
+                <Text size="xl">Cover photo</Text>
                 <Button variant="outline" size="xl" onPress={pickImage}>
                   {coverPhoto === "" ? (
                     <>
@@ -227,9 +233,9 @@ export default function EditEvent() {
                   )}
                 </Button>
               </VStack>
-              <HStack space="md" className="mt-4 w-full">
+              <VStack space="md" className="mt-4 w-full">
                 <VStack space="sm" className="flex-1">
-                  <Text size="2xl">Start Date</Text>
+                  <Text size="xl">Start Date</Text>
                   <DateTimePicker
                     value={startDate}
                     mode="datetime"
@@ -240,7 +246,7 @@ export default function EditEvent() {
                   />
                 </VStack>
                 <VStack space="sm" className="flex-1">
-                  <Text size="2xl">End Date</Text>
+                  <Text size="xl">End Date</Text>
                   <DateTimePicker
                     value={endDate}
                     mode="datetime"
@@ -250,13 +256,14 @@ export default function EditEvent() {
                     }
                   />
                 </VStack>
-              </HStack>
+              </VStack>
               <VStack space="md" className="mt-4">
-                <Text size="2xl">Category</Text>
+                <Text size="xl">Category</Text>
 
                 <Select
                   selectedValue={category}
                   onValueChange={(value) => setCategory(value as EventCategory)}
+                  initialLabel="Event category"
                 >
                   <SelectTrigger
                     variant="outline"
@@ -266,7 +273,7 @@ export default function EditEvent() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <SelectInput placeholder="Pick a category" />
+                    <SelectInput />
                     <SelectIcon className="mr-3" as={ChevronDownIcon} />
                   </SelectTrigger>
                   <SelectPortal>
@@ -285,20 +292,37 @@ export default function EditEvent() {
                 </Select>
               </VStack>
               <VStack space="sm" className="mt-4">
-                <Text size="2xl">Location</Text>
-                <Input size="xl">
-                  <InputField
-                    placeholder="Enter event location"
-                    value={location}
-                    onChangeText={setLocation}
+                <Text size="xl">Location</Text>
+                <Box className="border border-primary-0 rounded-md justify-center items-center flex flex-row">
+                  <Icon
+                    size="xl"
+                    as={MapPin}
+                    className="color-primary-0 ml-2"
                   />
-                  <InputSlot className="mr-3">
-                    <Icon as={MapPin} />
-                  </InputSlot>
-                </Input>
+                  <GooglePlacesAutocomplete
+                    listViewDisplayed={false}
+                    placeholder={location.description}
+                    styles={{
+                      textInputContainer: {
+                        width: "100%",
+                      },
+                    }}
+                    onPress={(data, details = null) => {
+                      setLocation({
+                        description: data["description"],
+                        id: data["place_id"],
+                      });
+                    }}
+                    query={{
+                      key: GOOGLE_MAPS_API_KEY,
+                      language: "en",
+                      components: "country:aus",
+                    }}
+                  />
+                </Box>
               </VStack>
               <VStack space="md" className="mt-4">
-                <Text size="2xl">Price</Text>
+                <Text size="xl">Price</Text>
                 <HStack space="md" className="justify-between">
                   {Object.entries(priceLabelMap).map(([priceKey, label]) => (
                     <VStack key={priceKey} className="items-center flex-1">
@@ -324,10 +348,10 @@ export default function EditEvent() {
                 </HStack>
               </VStack>
               <VStack space="md" className="mt-4">
-                <Text size="2xl">Event Description</Text>
+                <Text size="xl">Event Description</Text>
                 <Input size="xl" style={{ height: 80 }}>
                   <InputField
-                    placeholder="Enter event description"
+                    placeholder="Join us for an unforgettable day!"
                     value={description}
                     onChangeText={setDescription}
                     multiline={true}

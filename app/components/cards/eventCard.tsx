@@ -24,9 +24,10 @@ interface EventCardProps {
   status: Status;
   category: EventCategory;
   price: EventPrice;
-  distance: Distance;
+  distance?: Distance;
   condensed: boolean;
   availability: boolean[][];
+  condensedCategory: boolean;
 }
 
 export default function EventCard({
@@ -40,6 +41,7 @@ export default function EventCard({
   distance,
   condensed,
   availability,
+  condensedCategory,
 }: EventCardProps) {
   return (
     <Pressable
@@ -73,6 +75,9 @@ export default function EventCard({
                   available={isAvailable(start, availability)}
                 />
                 <StatusBadge status={status} />
+                {condensedCategory && (
+                  <EventCategoryBadge eventCategory={category} />
+                )}
               </>
             ) : (
               <ScrollView

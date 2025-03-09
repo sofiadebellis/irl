@@ -17,7 +17,7 @@ import { ButtonGroup } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import FilterButton from "./components/buttons/filterButton";
 import SortButton from "./components/buttons/sortButton";
-import { isAvailable, sortEvents } from "@/helpers";
+import { findDistance, isAvailable, sortEvents } from "@/helpers";
 import SearchBar from "./components/bars/searchBar";
 
 export default function Events() {
@@ -25,6 +25,9 @@ export default function Events() {
   const [searchValue, setSearchValue] = useState("");
   const [filters, setFilters] = useState<Filters>({} as Filters);
   const [sort, setSort] = useState<Sort>(Sort.DATE);
+  const [distanceMap, setDistanceMap] = useState<{
+    [key: string]: Distance | undefined;
+  }>({});
   const [availability, setAvailability] = useState<boolean[][]>(
     Array(7)
       .fill(null)
@@ -35,10 +38,10 @@ export default function Events() {
   const [userEvents, setUserEvents] = useState<UserEvent[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
-  const isRSVPd = (userEvents: UserEvent[], event: Event) => {
+  const cantGoEvent = (userEvents: UserEvent[], event: Event) => {
     return (
-      userEvents.find((userEvent) => userEvent["id"] === event["id"]) !==
-      undefined
+      userEvents.find((userEvent) => userEvent["id"] === event["id"])
+        ?.status === Status.CANT_GO
     );
   };
 
@@ -65,9 +68,13 @@ export default function Events() {
         if (searchValue.length > 0 && !isSearched(event)) {
           return false;
         }
+        if (new Date(event["start"]) < new Date()) {
+          // don't show past events
+          return false;
+        }
 
         if (filters) {
-          if (filters["rsvp"] === true && !isRSVPd(userEvents, event)) {
+          if (filters["cantGo"] === true && cantGoEvent(userEvents, event)) {
             return false;
           }
           if (
@@ -83,17 +90,45 @@ export default function Events() {
             return false;
           }
 
-          // TODO distance filter
+          const noLocation = Object.keys(distanceMap).length === 0;
+          if (!noLocation) {
+            const distance = distanceMap[event["id"]];
+            if (
+              distance !== undefined &&
+              !filters["distance"]?.includes(distance)
+            ) {
+              return false;
+            }
+          }
         }
 
         return true;
       });
     }
-
-    setFilteredEvents(sortEvents(tempFilteredEvents, sort));
+    setFilteredEvents(sortEvents(tempFilteredEvents, sort, distanceMap));
   };
 
   useEffect(() => {
+    const getDistanceData = async (events: Event[], userLocation: string) => {
+      const distancePromises = events.map(async (event) => {
+        const { id, location } = event;
+        const distance = await findDistance(userLocation, location["id"]);
+        return { id, distance };
+      });
+
+      const distances = await Promise.all(distancePromises);
+
+      const tempDistanceMap = distances.reduce<
+        Record<string, Distance | undefined>
+      >((acc, { id, distance }) => {
+        acc[id] = distance;
+        return acc;
+      }, {});
+
+      setDistanceMap(tempDistanceMap);
+      setLoading(false);
+    };
+
     const getEvents = async () => {
       const storedData = await AsyncStorage.getItem("data");
       const userID = await AsyncStorage.getItem("userID");
@@ -106,13 +141,22 @@ export default function Events() {
         );
         setUserEvents(user["events"]);
         setAvailability(user["availability"]);
+
+        if (Object.keys(user["location"]).length !== 0) {
+          getDistanceData(
+            JSON.parse(storedData)["Events"],
+            user["location"]["id"],
+          );
+          const tempFilters = filters && JSON.parse(filters);
+          setFilters(tempFilters);
+        } else {
+          const tempFilters = filters && JSON.parse(filters);
+          setFilters(tempFilters);
+          setLoading(false);
+        }
       }
-
-      const tempFilters = filters && JSON.parse(filters);
-
-      setFilters(tempFilters);
-      setLoading(false);
     };
+
     getEvents();
   }, []);
 
@@ -129,8 +173,14 @@ export default function Events() {
           setSearchQuery={setSearchValue}
         />
         <ButtonGroup space="md">
-          <SortButton updateSort={setSort} />
-          <FilterButton updateFilters={setFilters} />
+          <SortButton
+            updateSort={setSort}
+            disableDistance={Object.keys(distanceMap).length === 0}
+          />
+          <FilterButton
+            updateFilters={setFilters}
+            disableDistance={Object.keys(distanceMap).length === 0}
+          />
         </ButtonGroup>
 
         {loading ? (
@@ -150,6 +200,7 @@ export default function Events() {
                   (userEvent) => userEvent["id"] === id,
                 );
                 const past = userRespondedEvent?.status === Status.WENT;
+                const noLocation = Object.keys(distanceMap).length === 0;
 
                 return (
                   !past && (
@@ -166,8 +217,9 @@ export default function Events() {
                       }
                       category={category}
                       price={price}
-                      distance={Distance.ONE} // TODO distance of events
+                      distance={noLocation ? undefined : distanceMap[id]}
                       condensed={false}
+                      condensedCategory={false}
                       availability={availability}
                     />
                   )

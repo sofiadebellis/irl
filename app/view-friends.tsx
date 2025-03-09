@@ -41,7 +41,7 @@ export default function ViewFriends() {
           if (currentUser) {
             const friendDetails = currentUser.friends
               .map((friendId: string) =>
-                allUsers.find((user: User) => user.id === friendId)
+                allUsers.find((user: User) => user.id === friendId),
               )
               .filter(Boolean)
               .map((friend: any) => ({
@@ -58,7 +58,7 @@ export default function ViewFriends() {
           setLoading(false);
         } else {
           console.warn(
-            "User data or all users data is missing from Async Storage."
+            "User data or all users data is missing from Async Storage.",
           );
         }
       } catch (error) {
@@ -72,14 +72,14 @@ export default function ViewFriends() {
   useEffect(() => {
     setFilteredFriends(
       friends.filter((friend) =>
-        friend.username.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+        friend.username.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
     );
   }, [searchQuery, friends]);
 
   const calculateMutualFriends = (currentUser: any, friend: any): number => {
     return currentUser.friends.filter((id: string) =>
-      friend.friends.includes(id)
+      friend.friends.includes(id),
     ).length;
   };
 
@@ -131,9 +131,9 @@ export default function ViewFriends() {
                   filteredFriends.map((friend, index) => (
                     <TouchableOpacity
                       onPress={() => router.push(`/view-user?id=${friend.id}`)}
+                      key={index}
                     >
                       <FriendCard
-                        key={index}
                         id={friend.id}
                         username={friend.username}
                         image={friend.image}
@@ -142,7 +142,11 @@ export default function ViewFriends() {
                     </TouchableOpacity>
                   ))
                 ) : (
-                  <Text size="lg">No friends to display.</Text>
+                  <Box className="m-5">
+                    <Text size="xl" style={{ color: "#9c9c9c" }}>
+                      You have not added any friends.
+                    </Text>
+                  </Box>
                 )}
               </VStack>
             </VStack>

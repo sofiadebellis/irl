@@ -2,63 +2,67 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 interface ToggleSwitchProps {
-  isEventActive: boolean;
-  setIsEventActive: (value: boolean) => void;
-  isPrivateActive: boolean;
-  setIsPrivateActive: (value: boolean) => void;
+  isFirstActive: boolean;
+  setIsFirstActive: (value: boolean) => void;
+  isSecondActive: boolean;
+  setIsSecondActive: (value: boolean) => void;
+  firstToggleLabel: string;
+  secondToggleLabel: string;
   className?: string;
 }
 
 const ToggleSwitch = ({
-  isEventActive,
-  setIsEventActive,
-  isPrivateActive,
-  setIsPrivateActive,
+  isFirstActive,
+  setIsFirstActive,
+  isSecondActive,
+  setIsSecondActive,
+  firstToggleLabel,
+  secondToggleLabel,
   className,
 }: ToggleSwitchProps) => {
-  const toggleEvent = () => {
-    setIsEventActive(true);
-    setIsPrivateActive(false);
+  const toggleFirst = () => {
+    setIsFirstActive(true);
+    setIsSecondActive(false);
   };
 
-  const togglePrivate = () => {
-    setIsEventActive(false);
-    setIsPrivateActive(true);
+  const toggleSecond = () => {
+    setIsFirstActive(false);
+    setIsSecondActive(true);
   };
 
   return (
     <View style={styles.container} className={className}>
       <TouchableOpacity
-        onPress={toggleEvent}
+        onPress={toggleFirst}
         style={[
           styles.button,
-          isEventActive ? styles.activeButton : styles.inactiveButton,
+          isFirstActive ? styles.activeButton : styles.inactiveButton,
         ]}
       >
         <Text
           style={[
             styles.buttonText,
-            isEventActive ? styles.activeText : styles.inactiveText,
+            isFirstActive ? styles.activeText : styles.inactiveText,
           ]}
         >
-          Event Chats
+          {firstToggleLabel}
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={togglePrivate}
+        onPress={toggleSecond}
         style={[
           styles.button,
-          isPrivateActive ? styles.activeButton : styles.inactiveButton,
+          isSecondActive ? styles.activeButton : styles.inactiveButton,
         ]}
       >
         <Text
           style={[
             styles.buttonText,
-            isPrivateActive ? styles.activeText : styles.inactiveText,
+            isSecondActive ? styles.activeText : styles.inactiveText,
           ]}
         >
-          Private Chats
+          {secondToggleLabel}
         </Text>
       </TouchableOpacity>
     </View>
@@ -74,6 +78,7 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderRadius: 20,
     height: 45,
+    // width: "100%",
   },
   button: {
     flex: 1,

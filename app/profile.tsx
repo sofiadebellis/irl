@@ -19,12 +19,10 @@ import {
   Modal,
   ModalBackdrop,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
 } from "@/components/ui/modal";
-import { CloseIcon, Icon } from "@/components/ui/icon";
 
 export default function Profile() {
   const [loading, setLoading] = useState(true);
@@ -124,7 +122,10 @@ export default function Profile() {
 
                 <ButtonText>Edit Profile</ButtonText>
               </Button>
-              <Button size="xl">
+              <Button
+                size="xl"
+                onPress={() => router.push("./edit-availability")}
+              >
                 <ButtonIcon as={CalendarCog} size="md" />
                 <ButtonText>Update Availability</ButtonText>
               </Button>
@@ -136,6 +137,7 @@ export default function Profile() {
                 size="xl"
                 variant="outline"
                 onPress={() => setIsModalOpen(true)}
+                className="mb-10"
               >
                 <ButtonIcon as={LogOut} size="md" />
                 <ButtonText>Log out</ButtonText>
@@ -154,19 +156,12 @@ export default function Profile() {
         <ModalBackdrop />
         <ModalContent>
           <ModalHeader>
-            <Heading size="2xl">Log out confirmation</Heading>
-            <ModalCloseButton onPress={() => setIsModalOpen(false)}>
-              <Icon
-                as={CloseIcon}
-                size="xl"
-                className="stroke-background-400 group-[:hover]/modal-close-button:stroke-background-700 group-[:active]/modal-close-button:stroke-background-900 group-[:focus-visible]/modal-close-button:stroke-background-900"
-              />
-            </ModalCloseButton>
+            <Heading size="xl">Log Out</Heading>
           </ModalHeader>
           <ModalBody>
-            <Text size="xl">Are you sure you want to log out?</Text>
+            <Text size="lg">Are you sure you want to log out?</Text>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter className="justify-between">
             <Button
               variant="outline"
               action="secondary"

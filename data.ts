@@ -14,6 +14,9 @@ import {
   Collections,
 } from "./types";
 
+const chatEventUUIDs = new Map<string, string>();
+const privChatId = uuidv4();
+
 const data: Collections = {
   Users: [
     {
@@ -28,10 +31,17 @@ const data: Collections = {
       university: University.UNSW,
       availability: Array(7)
       .fill(null)
-      .map(() => Array(24).fill(true)),
+      .map(() =>
+        Array(24)
+          .fill(null)
+          .map((_, index) => index % 2 === 0)
+      ),
       eventNotifications: true,
       messageNotifications: false,
-      location: "Sydney",
+      location: {
+        description: "UNSW Sydney, Sydney NSW, Australia",
+        id: "ChIJp8ECA4uxEmsRoAd6A2l9AR0"
+      },
       privateAccount: false,
       chats: [
         {
@@ -59,7 +69,7 @@ const data: Collections = {
           archived: true,
         },
         {
-          id: "1a",
+          id: privChatId,
           name: "",
           groupChat: false,
         },
@@ -68,7 +78,7 @@ const data: Collections = {
         {
           id: "1",
           status: Status.GOING,
-          type: EventType.RSVP,
+          type: EventType.CREATED,
         },
         {
           id: "2",
@@ -109,13 +119,57 @@ const data: Collections = {
       .map(() => Array(24).fill(true)),
       eventNotifications: true,
       messageNotifications: true,
-      location: "Sydney",
+      location: {
+        description: "The University of Sydney, Camperdown NSW, Australia",
+        id: "ChIJ2fGeq9SxEmsRwAd6A2l9AR0"
+      },
       privateAccount: true,
-      chats: [],
+      chats: [
+        {
+          id: "1",
+          name: "Tech Conference Chat",
+          groupChat: true,
+          archived: false,
+        },
+        {
+          id: "2",
+          name: "Charity Run",
+          groupChat: true,
+          archived: false,
+        },
+        {
+          id: "3",
+          name: "Wine Tasting & Dinner",
+          groupChat: true,
+          archived: false,
+        },
+        {
+          id: "6",
+          name: "Sunrise Yoga & Meditation",
+          groupChat: true,
+          archived: false,
+        },
+        {
+          id: "7",
+          name: "Sydney to Byron Bay Road Trip",
+          groupChat: true,
+          archived: true,
+        },
+        {
+          id: privChatId,
+          name: "",
+          groupChat: false,
+        },
+      ],
       events: [
         {
           id: "1",
-          status: Status.INTERESTED,
+          status: Status.GOING,
+          type: EventType.RSVP,
+        },
+        {
+          id: "2",
+          status: Status.GOING,
           type: EventType.CREATED,
         },
         {
@@ -124,7 +178,7 @@ const data: Collections = {
           type: EventType.CREATED,
         },
         {
-          id: "5",
+          id: "6",
           status: Status.GOING,
           type: EventType.RSVP,
         },
@@ -152,17 +206,25 @@ const data: Collections = {
       .map(() => Array(24).fill(true)),
       eventNotifications: true,
       messageNotifications: true,
-      location: "Sydney",
+      location: {
+        description: "Sydney NSW, Australia",
+        id: "ChIJP3Sa8ziYEmsRUKgyFmh9AQM"
+      },
       privateAccount: false,
       chats: [],
       events: [
         {
-          id: "5",
+          id: "6",
           status: Status.GOING,
           type: EventType.CREATED,
         },
         {
           id: "7",
+          status: Status.GOING,
+          type: EventType.CREATED,
+        },
+        {
+          id: "8",
           status: Status.GOING,
           type: EventType.CREATED,
         },
@@ -181,7 +243,10 @@ const data: Collections = {
       name: "Tech Conference 2024",
       coverPhoto:
         "https://imgproxy.divecdn.com/h2Wlf_77AaPFpuzX_kQCwU0SvrpRLNGJ5ZA_sWx8qwc/g:ce/rs:fill:1200:675:1/bG9jYWw6Ly8vZGl2ZWltYWdlL0dldHR5SW1hZ2VzLTE0ODI4NDM4NzNfWUlBTGdWbC5qcGc=.webp",
-      location: "Sydney Convention Center",
+      location: {
+        description: "Sydney Convention and Exhibition Centre, Darling Drive, Sydney NSW, Australia",
+        id: "ChIJ8z-aqziuEmsRqUXOYXDGnwE"
+      },
       description:
         "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqu hfdjsafhas fdhfjdsahfadjkshf slafhdsajfh adsjkfh ajhfjkdhfdjahf jahfj kafh djakfhsjkfhdjf h jh jh fjsdhfjahf jaksfh asjklfhjkfhjkafhsjkfhjksafhjk.lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqu hfdjsafhas fdhfjdsahfadjkshf slafhdsajfh adsjkfh ajhfjkdhfdjahf jahfj kafh djakfhsjkfhdjf h jh jh fjsdhfjahf jaksfh asjklfhjkfhjkafhsjkfhjksafhjk.lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqu hfdjsafhas fdhfjdsahfadjkshf slafhdsajfh adsjkfh ajhfjkdhfdjahf jahfj kafh djakfhsjkfhdjf h jh jh fjsdhfjahf jaksfh asjklfhjkfhjkafhsjkfhjksafhjk.lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqu hfdjsafhas fdhfjdsahfadjkshf slafhdsajfh adsjkfh ajhfjkdhfdjahf jahfj kafh djakfhsjkfhdjf h jh jh fjsdhfjahf jaksfh asjklfhjkfhjkafhsjkfhjksafhjk.lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqu hfdjsafhas fdhfjdsahfadjkshf slafhdsajfh adsjkfh ajhfjkdhfdjahf jahfj kafh djakfhsjkfhdjf h jh jh fjsdhfjahf jaksfh asjklfhjkfhjkafhsjkfhjksafhjk.",
       host: "1",
@@ -196,7 +261,10 @@ const data: Collections = {
       name: "Charity Run",
       coverPhoto:
         "https://www.gofundme.com/en-gb/c/wp-content/uploads/sites/11/2022/10/MK-Marathon-Start.webp?w=1024",
-      location: "Centennial Park",
+      location: {
+        description: "Centennial Park NSW, Australia",
+        id: "ChIJyV-lISKuEmsRsLAyFmh9AQU"
+      },
       description: "A run for a good cause.",
       host: "2",
       start: new Date(Date.now() + 5043200000).toISOString(),
@@ -210,7 +278,10 @@ const data: Collections = {
       name: "Wine Tasting & Dinner",
       coverPhoto:
         "https://www.foodandwine.com/thmb/i3ppax3dzfKhybD3SuxsZSVHW9E=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/the-antler-room-natural-wine-bars-FT-SS1018-c1625c58d9aa4fd08c0216b6a84a6863.jpg",
-      location: "Hunter Valley Wineyard",
+      location: {
+        description: "Hunter Valley, NSW, Australia",
+        id: "ChIJ38bhORjODGsR_X6295P3L1Y"
+      },
       description:
         "An elegant evening of wine tasting followed by a gourmet dinner.",
       host: "2",
@@ -224,7 +295,10 @@ const data: Collections = {
       id: "4",
       name: "Film Screening: The Future of AI",
       coverPhoto: "https://images.stockcake.com/public/c/5/9/c59346d0-0a3f-4f17-bb6a-ff0b1b11bfe7_medium/exciting-space-movie-stockcake.jpg",
-      location: "IMAX Sydney",
+      location: {
+        description: "IMAX Sydney, Wheat Road, Sydney NSW, Australia",
+        id: "ChIJbyAsgICvEmsRpY7u6yTc8cc"
+      },
       description:
         "Join us for a special screening and discussion about the role of AI in our future.",
       host: "1",
@@ -239,7 +313,10 @@ const data: Collections = {
       name: "Art Gallery Opening: Abstract Visions",
       coverPhoto:
         "https://www.visitmelbourne.com/-/media/atdw/goldfields/see-and-do/art-and-culture/art-galleries/u2ksgmb72l8_1600x1200.jpg?ts=20240205300424",
-      location: "Newtown Art Gallery",
+      location: {
+        description: "Art Gallery, Enmore Road, Newtown NSW, Australia",
+        id: "ChIJ-2bMny2xEmsRvdDuvHSn3Co"
+      },
       description:
         "Explore the latest collection of contemporary abstract art.",
       host: "1",
@@ -254,7 +331,10 @@ const data: Collections = {
       name: "Sunrise Yoga & Meditation",
       coverPhoto:
         "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F744468369%2F964490329803%2F1%2Foriginal.png?h=200&w=512&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C940%2C470&s=5893d9e9e8cb2f1225cd68d292b7c2f2",
-      location: "Bondi Beach",
+      location: {
+        description: "Bondi Beach NSW, Australia",
+        id: "ChIJWTi8xgGyEmsRgK0yFmh9AQU"
+      },
       description:
         "Start your day with a refreshing yoga session at sunrise, followed by guided meditation to center your mind and body.",
       host: "3",
@@ -269,7 +349,10 @@ const data: Collections = {
       name: "Sydney to Byron Bay Road Trip",
       coverPhoto:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7wtHk4WFe0HxrrD7af0XNbWtfAPm9rAIywg&s",
-      location: "Byron Bay",
+      location: {
+        description: "Byron Bay NSW, Australia",
+        id: "ChIJK3Y-LYVikGsR0PJDkLQJBgQ"
+      },
       description:
         "Join us for a scenic road trip from Sydney to Byron Bay! Perfect for beach lovers and road trip enthusiasts! 🚗🌞",
       host: "3",
@@ -278,6 +361,24 @@ const data: Collections = {
       groupChat: "7",
       category: EventCategory.TRAVEL,
       price: EventPrice.HIGH,
+    },
+    {
+      id: "8",
+      name: "Live Comedy Night: Laugh Out Loud",
+      coverPhoto:
+        "https://cdn.eventfinda.com.au/uploads/events/transformed/755646-351530-35.jpg",
+      location: {
+        description: "Sydney Convention and Exhibition Centre, Darling Drive, Sydney NSW, Australia",
+        id: "ChIJ8z-aqziuEmsRqUXOYXDGnwE"
+      },
+      description:
+        "Get ready for a night full of laughter! Join us for an unforgettable live comedy show featuring Sydney's top comedians.",
+      host: "3",
+      start: new Date(Date.now() + 86400000).toISOString(),
+      end: new Date(Date.now() + 108000000).toISOString(),
+      groupChat: "8",
+      category: EventCategory.ENTERTAINMENT,
+      price: EventPrice.MED,
     },
   ],
   GroupChats: [
@@ -338,11 +439,6 @@ const data: Collections = {
           timestamp: new Date().toISOString(),
           message: "So excited!",
         },
-        {
-          sender: "1",
-          timestamp: new Date().toISOString(),
-          message: "Can't wait!",
-        },
       ],
       groupChat: true,
       archived: false,
@@ -386,7 +482,7 @@ const data: Collections = {
       name: "Sunrise Yoga & Meditation",
       coverPhoto:
         "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F744468369%2F964490329803%2F1%2Foriginal.png?h=200&w=512&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C940%2C470&s=5893d9e9e8cb2f1225cd68d292b7c2f2",
-      members: ["2, 3"],
+      members: ["2", "3"],
       admins: ["3"],
       messages: [
         {
@@ -408,7 +504,7 @@ const data: Collections = {
       name: "Sydney to Byron Bay Road Trip",
       coverPhoto:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7wtHk4WFe0HxrrD7af0XNbWtfAPm9rAIywg&s",
-      members: ["2, 3"],
+      members: ["2", "3"],
       admins: ["3"],
       messages: [
         {
@@ -426,10 +522,27 @@ const data: Collections = {
       groupChat: true,
       archived: false,
     },
+    {
+      id: "8",
+      name: "Live Comedy Night: Laugh Out Loud",
+      coverPhoto:
+        "https://cdn.eventfinda.com.au/uploads/events/transformed/755646-351530-35.jpg",
+      members: ["3"],
+      admins: ["3"],
+      messages: [
+        {
+          sender: "3",
+          timestamp: new Date().toISOString(),
+          message: "Been waiting for this!",
+        },
+      ],
+      groupChat: true,
+      archived: false,
+    },
   ],
   PrivateChats: [
     {
-      id: "1",
+      id: privChatId,
       name: "",
       coverPhoto:
         "https://static.wikia.nocookie.net/btb/images/6/6d/BobSavestheHedgehogs113.png/revision/latest?cb=20230125150319",

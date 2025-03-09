@@ -3,23 +3,7 @@ import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Button, ButtonIcon } from "@/components/ui/button";
-import {
-  ThreeDotsIcon,
-  EyeIcon,
-  RemoveIcon,
-  CloseCircleIcon,
-  AlertCircleIcon,
-  Icon,
-} from "@/components/ui/icon";
-import {
-  Menu,
-  MenuItem,
-  MenuItemLabel,
-  MenuSeparator,
-} from "@/components/ui/menu";
 import { Heading } from "@/components/ui/heading";
-import { router } from "expo-router";
 
 interface FriendCardProps {
   id: string;

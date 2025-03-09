@@ -12,13 +12,18 @@ export interface User {
     availability: boolean[][];
     eventNotifications: boolean;
     messageNotifications: boolean;
-    location: string;
+    location: Location;
     privateAccount: boolean;
     chats: UserChat[];
     events: UserEvent[];
     friends: string[];
     interest: EventCategory[];
   }
+
+export interface Location {
+  description: string;
+  id: string;
+}
 
 export enum University {
     UNSW = "University of New South Wales",
@@ -32,7 +37,7 @@ export interface Event {
     id: string;
     name: string;
     coverPhoto: string;
-    location: string;
+    location: Location;
     description: string;
     host: string;
     start: string;
@@ -108,7 +113,7 @@ export interface Event {
   // Filters Type
   export interface Filters {
     availability: boolean;
-    rsvp: boolean;
+    cantGo: boolean;
     category: EventCategory[];
     distance: Distance[];
     price: EventPrice[];

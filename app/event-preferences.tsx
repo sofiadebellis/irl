@@ -112,71 +112,88 @@ export default function SetEventPreferences() {
   };
 
   return (
-    <Box className="h-full bg-white grow">
+    <Box className="h-full bg-white">
       <ProgressBar stepNumber={4} />
-      <Fab
-        placement="top left"
-        size="lg"
-        onPress={() => router.back()}
-        className="border border-black bg-transparent p-2 mt-4 active:bg-transparent focus:bg-transparent"
-      >
-        <FabIcon
-          as={ArrowLeftIcon}
+      <Box className="flex-1">
+        <Fab
+          placement="top left"
+          size="lg"
           onPress={() => router.back()}
-          className="text-black"
-        />
-      </Fab>
-      <Center className="flex-1 bg-white p-10 mt-1">
-        <VStack space="sm" className="w-full">
-          <Heading size="3xl" className="text-left">
-            Event Preferences
-          </Heading>
-          <Text className="text-lg">
-            Select types of events you would like to attend
-          </Text>
-          <Grid
-            className="gap-4"
-            _extra={{
-              className: "grid-cols-2",
-            }}
-          >
-            {preferences.map((p) => (
-              <GridItem
+          className="border border-black bg-white p-2 mt-5 active:bg-white focus:bg-white"
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            backgroundColor: "white",
+            height: 50,
+            width: 50,
+          }}
+        >
+          <FabIcon
+            as={ArrowLeftIcon}
+            onPress={() => router.back()}
+            size="xl"
+            className="text-black"
+          />
+        </Fab>
+        <Center className="flex-1 bg-white">
+          <Box className="w-full">
+            <VStack space="sm" className="ml-10 mr-10 mb-38">
+              <Heading size="3xl" className="text-left ml-10">
+                Event Preferences
+              </Heading>
+              <Text size="md" className="text-lg mt-2">
+                <Text size="md" style={{ fontWeight: "bold" }}>
+                  Tap
+                </Text>{" "}
+                the types of events you would like to attend.
+              </Text>
+              <Grid
+                className="gap-4 mt-2"
                 _extra={{
-                  className: "col-span-1",
+                  className: "grid-cols-2",
                 }}
-                key={p.text}
-                className={`h-[100px] rounded-lg border-2 flex ${
-                  p.selected ? "border-tertiary-400" : "border-black"
-                }`}
               >
-                <Pressable
-                  onPress={() => handleSelection(p.text)}
-                  className="flex flex-1 justify-around items-center p-2"
-                >
-                  <Icon
-                    as={categoryIconMap[p.category]}
-                    className={p.selected ? "text-tertiary-400" : "text-black"}
-                    size="xl"
-                  />
-                  <Text
-                    className={`text-lg text-center font-semibold ${
-                      p.selected ? "text-tertiary-400" : "text-black"
+                {preferences.map((p) => (
+                  <GridItem
+                    _extra={{
+                      className: "col-span-1",
+                    }}
+                    key={p.text}
+                    className={`h-[100px] rounded-lg border-2 flex ${
+                      p.selected ? "border-tertiary-400" : "border-black"
                     }`}
                   >
-                    {p.category}
-                  </Text>
-                </Pressable>
-              </GridItem>
-            ))}
-          </Grid>
-          <VStack space="lg" className="w-full mt-5">
-            <Button variant="solid" size="xl" onPress={savePreferences}>
-              <ButtonText>Done</ButtonText>
-            </Button>
-          </VStack>
-        </VStack>
-      </Center>
+                    <Pressable
+                      onPress={() => handleSelection(p.text)}
+                      className="flex flex-1 justify-around items-center p-2"
+                    >
+                      <Icon
+                        as={categoryIconMap[p.category]}
+                        className={
+                          p.selected ? "text-tertiary-400" : "text-black"
+                        }
+                        size="xl"
+                      />
+                      <Text
+                        className={`text-lg text-center font-semibold ${
+                          p.selected ? "text-tertiary-400" : "text-black"
+                        }`}
+                      >
+                        {p.category}
+                      </Text>
+                    </Pressable>
+                  </GridItem>
+                ))}
+              </Grid>
+              <VStack space="lg" className="w-full mt-5">
+                <Button variant="solid" size="xl" onPress={savePreferences}>
+                  <ButtonText>Done</ButtonText>
+                </Button>
+              </VStack>
+            </VStack>
+          </Box>
+        </Center>
+      </Box>
     </Box>
   );
 }

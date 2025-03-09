@@ -1,29 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Dimensions, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text } from "@/components/ui/text";
 import { Center } from "@/components/ui/center";
 import { VStack } from "@/components/ui/vstack";
 import { Heading } from "@/components/ui/heading";
 import { Fab, FabIcon } from "@/components/ui/fab";
-import { AddIcon, ArrowLeftIcon, SlashIcon } from "@/components/ui/icon";
+import { ArrowLeftIcon, SlashIcon } from "@/components/ui/icon";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { User } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import {
-  MinusIcon,
-  Share,
-  TriangleAlert,
-  UserMinus,
-  UserPlus,
-} from "lucide-react-native";
+import { Share, TriangleAlert, UserMinus, UserPlus } from "lucide-react-native";
 
 export default function ViewUser() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const [currUserId, setCurrUserId] = useState<string>("");
   const [user, setUser] = useState<User>();
   const [isFriend, setIsFriend] = useState(false);
 
@@ -32,6 +27,7 @@ export default function ViewUser() {
       try {
         const jsonData = await AsyncStorage.getItem("data");
         const userId = await AsyncStorage.getItem("userID");
+        setCurrUserId(userId ? userId : "");
 
         const data = jsonData
           ? JSON.parse(jsonData)
@@ -42,7 +38,7 @@ export default function ViewUser() {
           setUser(foundUser);
 
           const loggedInUser = data.Users.find(
-            (user: User) => user.id === userId
+            (user: User) => user.id === userId,
           );
           if (loggedInUser) {
             setIsFriend(loggedInUser.friends.map(String).includes(String(id)));
@@ -68,7 +64,7 @@ export default function ViewUser() {
       if (jsonData && userId) {
         const data = JSON.parse(jsonData);
         const loggedInUser = data.Users.find(
-          (user: User) => user.id === userId
+          (user: User) => user.id === userId,
         );
 
         if (loggedInUser) {
@@ -90,12 +86,12 @@ export default function ViewUser() {
       if (jsonData && userId) {
         const data = JSON.parse(jsonData);
         const loggedInUser = data.Users.find(
-          (user: User) => user.id === userId
+          (user: User) => user.id === userId,
         );
 
         if (loggedInUser) {
           loggedInUser.friends = loggedInUser.friends.filter(
-            (friendId: string) => friendId !== id
+            (friendId: string) => friendId !== id,
           );
 
           await AsyncStorage.setItem("data", JSON.stringify(data));
@@ -161,35 +157,38 @@ export default function ViewUser() {
                 >
                   {user?.bio}
                 </Text>
-                {isFriend ? (
-                  <Button size="xl" onPress={removeFriend}>
-                    <ButtonIcon as={UserMinus} />
-                    <ButtonText>Remove friend</ButtonText>
-                  </Button>
-                ) : (
-                  <Button size="xl" onPress={addFriend}>
-                    <ButtonIcon as={UserPlus} />
-                    <ButtonText>Add friend</ButtonText>
-                  </Button>
-                )}
+                {id !== currUserId &&
+                  (isFriend ? (
+                    <Button size="xl" onPress={removeFriend}>
+                      <ButtonIcon as={UserMinus} />
+                      <ButtonText>Remove friend</ButtonText>
+                    </Button>
+                  ) : (
+                    <Button size="xl" onPress={addFriend}>
+                      <ButtonIcon as={UserPlus} />
+                      <ButtonText>Add friend</ButtonText>
+                    </Button>
+                  ))}
               </VStack>
-              <VStack space="xl">
-                <Heading size="xl">Privacy and Support</Heading>
-                <VStack space="sm">
-                  <Button size="xl" variant="outline">
-                    <ButtonIcon className="text-black" as={SlashIcon} />
-                    <ButtonText className="text-black">Block</ButtonText>
-                  </Button>
-                  <Button size="xl" variant="outline">
-                    <ButtonIcon className="text-black" as={TriangleAlert} />
-                    <ButtonText className="text-black">Report</ButtonText>
-                  </Button>
-                  <Button size="xl" variant="outline">
-                    <ButtonIcon className="text-black" as={Share} />
-                    <ButtonText className="text-black">Share</ButtonText>
-                  </Button>
+              {id !== currUserId && (
+                <VStack space="xl">
+                  <Heading size="xl">Privacy and Support</Heading>
+                  <VStack space="sm">
+                    <Button size="xl" variant="outline">
+                      <ButtonIcon className="text-black" as={SlashIcon} />
+                      <ButtonText className="text-black">Block</ButtonText>
+                    </Button>
+                    <Button size="xl" variant="outline">
+                      <ButtonIcon className="text-black" as={TriangleAlert} />
+                      <ButtonText className="text-black">Report</ButtonText>
+                    </Button>
+                    <Button size="xl" variant="outline">
+                      <ButtonIcon className="text-black" as={Share} />
+                      <ButtonText className="text-black">Share</ButtonText>
+                    </Button>
+                  </VStack>
                 </VStack>
-              </VStack>
+              )}
             </VStack>
           </Box>
         </Center>

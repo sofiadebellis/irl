@@ -11,7 +11,7 @@ import { Fab, FabIcon } from "@/components/ui/fab";
 import ProgressBar from "./components/progress-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function SetAvailabilities() {
+export default function EditAvailabilities() {
   const createEmptyGrid = () => {
     return Array(7)
       .fill(null)
@@ -65,7 +65,7 @@ export default function SetAvailabilities() {
       const updatedData = { ...data, Users: updatedUsers };
       await AsyncStorage.setItem("data", JSON.stringify(updatedData));
 
-      router.push("/event-preferences");
+      router.push("/profile");
     } catch (error) {
       console.error("Error saving profile data:", error);
     }
@@ -117,7 +117,6 @@ export default function SetAvailabilities() {
 
   return (
     <Box className="h-full bg-white">
-      <ProgressBar stepNumber={3} />
       <Box>
         <Fab
           placement="top left"
@@ -135,8 +134,8 @@ export default function SetAvailabilities() {
           <FabIcon
             as={ArrowLeftIcon}
             onPress={() => router.back()}
-            className="text-black"
             size="xl"
+            className="text-black"
           />
         </Fab>
         <Box className="w-full mt-10">
@@ -164,7 +163,7 @@ export default function SetAvailabilities() {
             </Box>
           </Box>
         </Box>
-        <Box className="h-[55vh] mt-2 mb-10 px-2 flex flex-column gap-1 space-between gap-5">
+        <Box className="h-[60vh] mt-2 mb-10 px-2 flex flex-column gap-1 space-between gap-5">
           <ScrollView className="flex-1 flex-column">
             <Box className="flex flex-row gap-1">
               <Box className="flex flex-column mt-2">

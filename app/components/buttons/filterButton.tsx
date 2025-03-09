@@ -30,15 +30,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface FilterButtonProps {
   updateFilters: (value: Filters) => void;
+  disableDistance: boolean;
 }
 
-export default function FilterButton({ updateFilters }: FilterButtonProps) {
+export default function FilterButton({
+  updateFilters,
+  disableDistance,
+}: FilterButtonProps) {
   const toEnumArray = (type: object) => {
     return Object.keys(type).map((key) => type[key as keyof typeof type]);
   };
   const initFilters: Filters = {
     availability: false,
-    rsvp: false,
+    cantGo: false,
     category: toEnumArray(EventCategory),
     distance: toEnumArray(Distance),
     price: toEnumArray(EventPrice),
@@ -55,9 +59,9 @@ export default function FilterButton({ updateFilters }: FilterButtonProps) {
     setFilters(tempFilters);
   };
 
-  const toggleRsvp = () => {
+  const toggleCantGo = () => {
     const tempFilters = { ...filters };
-    tempFilters["rsvp"] = !tempFilters["rsvp"];
+    tempFilters["cantGo"] = !tempFilters["cantGo"];
     setFilters(tempFilters);
   };
 
@@ -88,6 +92,26 @@ export default function FilterButton({ updateFilters }: FilterButtonProps) {
         );
       } else {
         tempFilters["distance"] = [...tempFilters["distance"], distance];
+      }
+    } else if (distance === Distance.ONE) {
+      if (tempFilters["distance"].includes(Distance.FIVE)) {
+        if (tempFilters["distance"].includes(Distance.OVER_FIFTY)) {
+          tempFilters["distance"] = [...newDistances, Distance.OVER_FIFTY];
+        } else {
+          tempFilters["distance"] = newDistances;
+        }
+      } else if (tempFilters["distance"].includes(Distance.ONE)) {
+        if (tempFilters["distance"].includes(Distance.OVER_FIFTY)) {
+          tempFilters["distance"] = [Distance.OVER_FIFTY];
+        } else {
+          tempFilters["distance"] = [];
+        }
+      } else if (!tempFilters["distance"].includes(Distance.ONE)) {
+        if (tempFilters["distance"].includes(Distance.OVER_FIFTY)) {
+          tempFilters["distance"] = [Distance.ONE, Distance.OVER_FIFTY];
+        } else {
+          tempFilters["distance"] = [Distance.ONE];
+        }
       }
     } else if (tempFilters["distance"].includes(Distance.OVER_FIFTY)) {
       tempFilters["distance"] = [...newDistances, Distance.OVER_FIFTY];
@@ -145,10 +169,10 @@ export default function FilterButton({ updateFilters }: FilterButtonProps) {
               />
             </HStack>
             <HStack className="justify-between items-center">
-              <Text size="lg">Only Interested and Going</Text>
+              <Text size="lg">Hide 'Can't Go' Events</Text>
               <Switch
-                value={filters["rsvp"]}
-                onToggle={toggleRsvp}
+                value={filters["cantGo"]}
+                onToggle={toggleCantGo}
                 trackColor={{ true: "#fb9d4b" }}
               />
             </HStack>
@@ -175,27 +199,29 @@ export default function FilterButton({ updateFilters }: FilterButtonProps) {
                 })}
               </ButtonGroup>
             </VStack>
-            <VStack space="md">
-              <Text size="lg">Distance</Text>
-              <ButtonGroup className="flex-wrap">
-                {Object.keys(Distance).map((key, index) => {
-                  const distance = Distance[key as keyof typeof Distance];
-                  return (
-                    <Button
-                      key={index}
-                      variant={
-                        filters["distance"].includes(distance)
-                          ? "solid"
-                          : "outline"
-                      }
-                      onPress={() => selectDistance(distance)}
-                    >
-                      <ButtonText>{distanceTextMap[distance]}</ButtonText>
-                    </Button>
-                  );
-                })}
-              </ButtonGroup>
-            </VStack>
+            {!disableDistance && (
+              <VStack space="md">
+                <Text size="lg">Distance</Text>
+                <ButtonGroup className="flex-wrap">
+                  {Object.keys(Distance).map((key, index) => {
+                    const distance = Distance[key as keyof typeof Distance];
+                    return (
+                      <Button
+                        key={index}
+                        variant={
+                          filters["distance"].includes(distance)
+                            ? "solid"
+                            : "outline"
+                        }
+                        onPress={() => selectDistance(distance)}
+                      >
+                        <ButtonText>{distanceTextMap[distance]}</ButtonText>
+                      </Button>
+                    );
+                  })}
+                </ButtonGroup>
+              </VStack>
+            )}
             <VStack space="md">
               <Text size="lg">Price</Text>
               <ButtonGroup className="flex-wrap">

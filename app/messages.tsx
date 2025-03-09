@@ -14,6 +14,8 @@ import SearchBar from "./components/bars/searchBar";
 import { Heading } from "@/components/ui/heading";
 import { Spinner } from "@/components/ui/spinner";
 
+import { getOtherMemberName, getPrivateChatCoverPhoto } from "@/helpers";
+
 type ChatCard = {
   chats: Chat[];
   filterCondition?: (chat: Chat) => boolean | undefined;
@@ -41,7 +43,6 @@ export default function Messages() {
           const allGroupChats = JSON.parse(allUsersJsonData).GroupChats;
           const allPrivateChats = JSON.parse(allUsersJsonData).PrivateChats;
           setAllUserDetails(allUsers);
-
           const currentUser = allUsers.find((user: User) => user.id === userID);
           setCurrUser(currentUser);
 
@@ -89,16 +90,6 @@ export default function Messages() {
     chat.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const getOtherMemberName = (chat: Chat) => {
-    const otherMemberId = chat.members.find(
-      (member) => member !== currUser?.id,
-    );
-    const otherMember = allUserDetails.find(
-      (user) => user.id === otherMemberId,
-    );
-    return otherMember ? otherMember.name : "Unknown";
-  };
-
   const renderChatCards = ({
     chats,
     filterCondition = (chat: Chat) => true,
@@ -108,12 +99,25 @@ export default function Messages() {
 
     return (
       <>
-        {chats && chats.length > 0 ? (
+        {chats && filteredChats.length > 0 ? (
           filteredChats.map((chat: Chat) => (
             <ChatCard
               key={chat.id}
-              name={chat.name === "" ? getOtherMemberName(chat) : chat.name}
-              coverPhoto={chat.coverPhoto}
+              chatId={chat.id}
+              name={
+                chat.name === ""
+                  ? getOtherMemberName(chat, currUser?.id!, allUserDetails)
+                  : chat.name
+              }
+              coverPhoto={
+                chat.coverPhoto === ""
+                  ? getPrivateChatCoverPhoto(
+                      chat,
+                      currUser?.id!,
+                      allUserDetails,
+                    )
+                  : chat.coverPhoto
+              }
               lastAuthor={
                 allUserDetails?.find(
                   (user: User) =>
@@ -127,7 +131,9 @@ export default function Messages() {
           <>
             {!searchQuery && (
               <Box className="m-5">
-                <Text size="xl">{errorMsg}</Text>
+                <Text size="xl" style={{ color: "#9c9c9c" }}>
+                  {errorMsg}
+                </Text>
               </Box>
             )}
           </>
@@ -149,10 +155,12 @@ export default function Messages() {
           placeholder="Search for chats..."
         />
         <ToggleSwitch
-          isEventActive={isEventActive}
-          setIsEventActive={setIsEventActive}
-          isPrivateActive={isPrivateActive}
-          setIsPrivateActive={setIsPrivateActive}
+          isFirstActive={isEventActive}
+          setIsFirstActive={setIsEventActive}
+          isSecondActive={isPrivateActive}
+          setIsSecondActive={setIsPrivateActive}
+          firstToggleLabel="Event Chats"
+          secondToggleLabel="Private Chats"
           className="mb-6 mt-4"
         />
         <ScrollView className="flex-1">

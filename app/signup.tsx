@@ -30,7 +30,7 @@ export default function Signup() {
     }
 
     const regexp = new RegExp(
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
     );
     if (!regexp.test(email)) {
       setError("Please enter a valid email address.");
@@ -69,7 +69,9 @@ export default function Signup() {
         image: "",
         pronouns: "",
         university: "Other",
-        availability: Array(24).fill(true),
+        availability: Array(7)
+          .fill(null)
+          .map(() => Array(24).fill(false)),
         eventNotifications: true,
         messageNotifications: false,
         location: "",
@@ -126,7 +128,7 @@ export default function Signup() {
               className="pr-2"
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             >
-              <Icon as={isPasswordVisible ? EyeOffIcon : EyeIcon} />
+              <Icon as={isPasswordVisible ? EyeOffIcon : EyeIcon} size="xl" />
             </InputSlot>
           </Input>
         </VStack>

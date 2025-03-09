@@ -16,7 +16,6 @@ import {
   ArrowLeftIcon,
   CheckCircleIcon,
   CloseCircleIcon,
-  CloseIcon,
   Icon,
   MailIcon,
 } from "@/components/ui/icon";
@@ -38,7 +37,7 @@ import EventPriceBadge from "./components/badges/eventPriceBadge";
 import DistanceBadge from "./components/badges/distanceBadge";
 import { Image } from "react-native";
 import { Box } from "@/components/ui/box";
-import { getUserEventStatus } from "@/helpers";
+import { getUserEventStatus, getHostChatData, findDistance } from "@/helpers";
 import StatusBadge from "./components/badges/statusBadge";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import {
@@ -78,6 +77,7 @@ import {
 export default function ViewEvent() {
   const { id, available } = useLocalSearchParams();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState<Event | null>(null);
   const [host, setHost] = useState<User>();
   const [rsvpStatus, setRsvpStatus] = useState<Status>(Status.NONE);
@@ -86,32 +86,46 @@ export default function ViewEvent() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [userID, setUserID] = useState<string>();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [allUserData, setAllUserData] = useState<any>({});
+  const [distance, setDistance] = useState<Distance>();
 
   useEffect(() => {
     const loadEventData = async () => {
       try {
         const jsonData = await AsyncStorage.getItem("data");
+        setAllUserData(jsonData ? JSON.parse(jsonData) : "");
         const userId = await AsyncStorage.getItem("userID");
         const data = jsonData
           ? JSON.parse(jsonData)
           : { Events: [], Users: [] };
 
         userId ? setUserID(userId) : console.error("No user ID found");
+        const user = data.Users.find((user: User) => user.id === userId);
 
         const foundEvent = data.Events.find((event: Event) => event.id === id);
         if (foundEvent) {
           setEvent(foundEvent);
 
           const host = data.Users.find(
-            (user: User) => user.id === foundEvent.host
+            (user: User) => user.id === foundEvent.host,
           );
-
           host ? setHost(host) : console.error("Host not found");
+
+          if (Object.keys(user.location).length !== 0) {
+            const tempDistance = await findDistance(
+              user.location.id,
+              foundEvent.location.id,
+            );
+            setDistance(tempDistance);
+          } else {
+            setDistance(undefined);
+          }
         } else {
           console.error("Event not found");
         }
         const status = getUserEventStatus(userId as string, id as string, data);
         setRsvpStatus(status);
+        setLoading(false);
       } catch (error) {
         console.error("Error loading event data:", error);
       }
@@ -131,12 +145,12 @@ export default function ViewEvent() {
 
       if (userId) {
         const userIndex = data.Users.findIndex(
-          (user: User) => user.id === userId
+          (user: User) => user.id === userId,
         );
 
         if (userIndex !== -1) {
           const eventIndex = data.Users[userIndex].events.findIndex(
-            (userEvent: UserEvent) => userEvent.id === id
+            (userEvent: UserEvent) => userEvent.id === id,
           );
 
           if (eventIndex !== -1) {
@@ -152,12 +166,21 @@ export default function ViewEvent() {
             if (
               !data.Users[userIndex].chats.find((chat: Chat) => chat.id === id)
             ) {
-              data.Users[userIndex].chats.push({
-                id,
-                name: eventName,
-                groupChat: true,
-                archived: false,
-              });
+              if (status === Status.GOING) {
+                data.Users[userIndex].chats.push({
+                  id,
+                  name: eventName,
+                  groupChat: true,
+                  archived: false,
+                });
+              }
+            } else {
+              const chatIndex = data.Users[userIndex].chats.findIndex(
+                (chat: Chat) => chat.id === id,
+              );
+              if (chatIndex !== -1) {
+                data.Users[userIndex].chats.splice(chatIndex, 1);
+              }
             }
           } else {
             console.error("Event not found in Events list");
@@ -213,16 +236,16 @@ export default function ViewEvent() {
       const updatedEvents = data.Events.filter((e: Event) => e.id !== id);
 
       const updatedGroupChats = data.GroupChats.filter(
-        (chat: Chat) => chat.id !== eventToDelete.groupChat
+        (chat: Chat) => chat.id !== eventToDelete.groupChat,
       );
 
       const updatedUsers = data.Users.map((user: User) => ({
         ...user,
         events: user.events.filter(
-          (userEvent: UserEvent) => userEvent.id !== id
+          (userEvent: UserEvent) => userEvent.id !== id,
         ),
         chats: user.chats.filter(
-          (userChat: UserChat) => userChat.id !== eventToDelete.groupChat
+          (userChat: UserChat) => userChat.id !== eventToDelete.groupChat,
         ),
       }));
 
@@ -235,14 +258,13 @@ export default function ViewEvent() {
 
       await AsyncStorage.setItem("data", JSON.stringify(updatedData));
 
-      console.log("Event and associated group chat deleted successfully.");
       router.push("/dashboard");
     } catch (error) {
       console.error("Error deleting event and group chat:", error);
     }
   };
 
-  if (!event) {
+  if (!event || loading) {
     return (
       <Box className="h-full bg-white">
         <Spinner size="large" className="m-40" />
@@ -250,22 +272,35 @@ export default function ViewEvent() {
     );
   }
 
+  const handleMessageHost = async () => {
+    const url = await getHostChatData(allUserData, event.host, userID!);
+    if (url) {
+      router.push(url);
+    }
+  };
+
   return (
     <Box className="h-full">
       <Fab
         placement="top left"
+        size="lg"
         onPress={() => router.back()}
         className="border border-black bg-white p-2 active:bg-white focus:bg-white"
-        style={{ position: "absolute", zIndex: 1, height: 50, width: 50 }}
+        style={{
+          position: "absolute",
+          zIndex: 1,
+          backgroundColor: "white",
+          height: 50,
+          width: 50,
+        }}
       >
         <FabIcon
           as={ArrowLeftIcon}
           onPress={() => router.back()}
-          size="xl"
           className="text-black"
+          size="xl"
         />
       </Fab>
-
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
         style={{ backgroundColor: "#FFFFFF" }}
@@ -285,7 +320,12 @@ export default function ViewEvent() {
           <Box className="w-full">
             <VStack space="xl" className="m-5">
               <HStack className="justify-between flex-row w-full">
-                <DateBadge date="2021-12-25" available={true} />
+                <DateBadge
+                  date={event.start}
+                  available={
+                    available === "undefined" ? undefined : available === "true"
+                  }
+                />
                 {host?.id === userID && (
                   <TouchableOpacity onPress={() => setIsModalOpen(true)}>
                     <Icon
@@ -321,7 +361,7 @@ export default function ViewEvent() {
               <HStack space="sm">
                 <EventCategoryBadge eventCategory={event.category} />
                 <EventPriceBadge eventPrice={event.price} />
-                <DistanceBadge distance={Distance.ONE} />
+                <DistanceBadge distance={distance} />
                 {rsvpStatus !== Status.NONE && (
                   <StatusBadge status={rsvpStatus} />
                 )}
@@ -335,8 +375,7 @@ export default function ViewEvent() {
                   <ButtonText>Edit event</ButtonText>
                 </Button>
               ) : (
-                <Button size="xl">
-                  {/* TODO: Link to messages */}
+                <Button size="xl" onPress={() => handleMessageHost()}>
                   <ButtonIcon as={Crown} />
                   <ButtonText>Message host</ButtonText>
                 </Button>
@@ -344,8 +383,15 @@ export default function ViewEvent() {
               {rsvpStatus !== Status.NONE &&
               rsvpStatus !== Status.CANT_GO &&
               rsvpStatus !== Status.INTERESTED ? (
-                // TODO: Link to messages
-                <Button size="xl" variant="outline">
+                <Button
+                  size="xl"
+                  variant="outline"
+                  onPress={() =>
+                    router.push(
+                      `/chat?chatId=${event.id}&chatName=${event.name}&coverPhoto=${event.coverPhoto}`,
+                    )
+                  }
+                >
                   <ButtonIcon as={MessageCircle} />
                   <ButtonText>Group chat</ButtonText>
                 </Button>
@@ -406,7 +452,7 @@ export default function ViewEvent() {
                 <Icon size="xl" as={MapPin} />
                 <Heading size="2xl">Location</Heading>
               </HStack>
-              <Text size="xl">{event.location}</Text>
+              <Text size="xl">{event.location.description}</Text>
               <HStack className="items-center" space="sm">
                 <Icon size="xl" as={ListCollapse} />
                 <Heading size="2xl">Description and Details</Heading>
@@ -492,19 +538,12 @@ export default function ViewEvent() {
         <ModalBackdrop />
         <ModalContent>
           <ModalHeader>
-            <Heading size="2xl">Delete event confirmation</Heading>
-            <ModalCloseButton onPress={() => setIsModalOpen(false)}>
-              <Icon
-                as={CloseIcon}
-                size="xl"
-                className="stroke-background-400 group-[:hover]/modal-close-button:stroke-background-700 group-[:active]/modal-close-button:stroke-background-900 group-[:focus-visible]/modal-close-button:stroke-background-900"
-              />
-            </ModalCloseButton>
+            <Heading size="xl">Delete Event</Heading>
           </ModalHeader>
           <ModalBody>
-            <Text size="xl">Are you sure you want to delete this event?</Text>
+            <Text size="lg">Are you sure you want to delete this event?</Text>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter className="justify-between">
             <Button
               variant="outline"
               action="secondary"

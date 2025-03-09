@@ -19,7 +19,7 @@ export default function Landing() {
         const existingData = await AsyncStorage.getItem("data");
         if (!existingData) {
           await AsyncStorage.setItem("data", JSON.stringify(data));
-        } 
+        }
       } catch (error) {
         console.error("Error accessing AsyncStorage:", error);
       }

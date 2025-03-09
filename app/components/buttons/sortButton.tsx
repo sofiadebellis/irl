@@ -15,9 +15,13 @@ import { ChevronDownIcon } from "lucide-react-native";
 
 interface SortButtonProps {
   updateSort: (value: Sort) => void;
+  disableDistance: boolean;
 }
 
-export default function SortButton({ updateSort }: SortButtonProps) {
+export default function SortButton({
+  updateSort,
+  disableDistance,
+}: SortButtonProps) {
   return (
     <Select
       className="flex-1 bg-white"
@@ -39,8 +43,18 @@ export default function SortButton({ updateSort }: SortButtonProps) {
             <SelectDragIndicator />
           </SelectDragIndicatorWrapper>
           <SelectItem label="Date" value={Sort.DATE} />
-          <SelectItem label="Distance, ascending" value={Sort.DISTANCE_ASC} />
-          <SelectItem label="Distance, descending" value={Sort.DISTANCE_DES} />
+          {!disableDistance && (
+            <>
+              <SelectItem
+                label="Distance, ascending"
+                value={Sort.DISTANCE_ASC}
+              />
+              <SelectItem
+                label="Distance, descending"
+                value={Sort.DISTANCE_DES}
+              />
+            </>
+          )}
           <SelectItem label="Price, ascending" value={Sort.PRICE_ASC} />
           <SelectItem label="Price, descending" value={Sort.PRICE_DES} />
         </SelectContent>
